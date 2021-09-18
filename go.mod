@@ -1,4 +1,4 @@
-module servert_comon
+module server_common
 
 go 1.13
 
