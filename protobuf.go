@@ -1,4 +1,4 @@
-package main
+package server_common
 
 import (
 	"bytes"
@@ -63,10 +63,13 @@ func PathExists(path string) (bool, error) {
 }
 
 
-func main()  {
-
+func Run() error {
 	GetBufFiles(".")	//获取目录的protobuf文件
 	for _,v := range buf{
-		_ = Protobuf(v)
+		err := Protobuf(v)
+		if err != nil{
+			return err
+		}
 	}
+	return nil
 }

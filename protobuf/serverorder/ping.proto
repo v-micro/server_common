@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package serverorder;
+
+service Ping {
+    //测试服务
+    rpc Get (GetRequest) returns (GetResponse) {}
+}
+
+message GetRequest{}
+message GetResponse{
+    string res = 1;
+}
