@@ -50,7 +50,7 @@ func GetClient() *Client {
 	grpcClient.Ctx, _ = context.WithTimeout(context.Background(), 5*time.Minute)
 
 	if grpcClient.Conn, err = grpc.Dial(grpcUrl, grpc.WithInsecure()); err != nil {
-		glog.Error("grpc连接失败，", err)
+		glog.Error("grpc连接失败，", err , grpcUrl)
 		return nil
 	} else {
 		//rpc链接服务
