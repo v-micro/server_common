@@ -2,6 +2,7 @@ package server_common
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -68,8 +69,11 @@ func Run() error {
 	for _,v := range buf{
 		err := Protobuf(v)
 		if err != nil{
+			fmt.Sprintf("%s => %s.pb.go error.", v, strings.TrimRight(v, ".proto"))
 			return err
 		}
+		fmt.Println(fmt.Sprintf("%s => %s.pb.go success.", v, strings.TrimRight(v, ".proto")))
 	}
 	return nil
 }
+
