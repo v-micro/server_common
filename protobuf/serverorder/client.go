@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
-	"server_gateway/server_common/comutil"
+	"server_order/server_common/comutil"
 	"time"
 )
 
