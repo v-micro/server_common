@@ -90,13 +90,16 @@ func (s *ServiceRegister) Close() error {
 
 //服务租约
 var endpoints = []string{"localhost:2379"}
-ser, err := comutil.NewServiceRegister("server_order", "111111", 5)
+ser, err := NewServiceRegister(endpoints, "/web/node1", "localhost:8000", 5)
 if err != nil {
 	log.Fatalln(err)
 }
 //监听续租相应chan
 go ser.ListenLeaseRespChan()
-select {}
+select {
+// case <-time.After(20 * time.Second):
+//     ser.Close()
+}
 
 */
 
