@@ -4,12 +4,11 @@ import (
 	"context"
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
-	"sync"
+	"server_gateway/server_common/comutil"
 	"time"
 )
 
 type Client struct {
-	lock     sync.Mutex
 	Ctx      context.Context
 	Conn     *grpc.ClientConn
 
@@ -18,7 +17,7 @@ type Client struct {
 }
 
 //公共方法
-var grpcUrl = "127.0.0.1:10001"
+var grpcUrl = ""
 var grpcClient Client
 
 //初始化
@@ -32,18 +31,20 @@ func init() {
 func GetClient() *Client {
 	var err error
 
-	//判断是否存在
-	if grpcClient.Conn != nil && grpcClient.Conn.GetState().String() != "SHUTDOWN" {
-		return &grpcClient
+	//从服务发现获取链接地址
+	var endpoints = []string{"192.168.59.131:2379"}
+	ser := comutil.NewServiceDiscovery(endpoints)
+	defer ser.Close()
+	err = ser.WatchService("server_order")
+	if err != nil {
+		return nil
 	}
+	grpcUrl = ser.GetServices()[0]
 
-	//互斥锁
-	grpcClient.lock.Lock()
-	defer grpcClient.lock.Unlock()
-
-	//判断是否存在
-	if grpcClient.Conn != nil && grpcClient.Conn.GetState().String() != "SHUTDOWN" {
-		return &grpcClient
+	//grpcUrl 判断
+	if grpcUrl == "" {
+		glog.Error("grpcUrl 连接获取失败")
+		return nil
 	}
 
 	//设置超时
