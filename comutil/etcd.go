@@ -57,14 +57,20 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	}
 	//设置续租 定期发送需求请求
 	leaseRespChan, err := s.cli.KeepAlive(context.Background(), resp.ID)
-
 	if err != nil {
 		return err
 	}
 	s.leaseID = resp.ID
 	//log.Println(s.leaseID)
 	s.keepAliveChan = leaseRespChan
-	log.Printf("Put key:%s  val:%s  success!", s.key, s.val)
+	//log.Printf("Put key:%s  val:%s  success!", s.key, s.val)
+
+	//循环取出 chan
+	go func() {
+		for  {
+			_ = <- s.keepAliveChan
+		}
+	}()
 	return nil
 }
 
