@@ -4,48 +4,29 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go/config"
 	"io"
-	"log"
 )
 
-//采样所有追踪（不能再online环境使用）
-const JaegerSamplerParam = 1
-const JaegerReportingHost = "192.168.59.131:6831"
-
-//将GlobalTracerHandler作为全局变量使用，这样保证代码中使用同一个tracer
-var GlobalTracerHandler *TraceHandler
-
-//初始化服务
-type TraceHandler struct {
-	Tracer opentracing.Tracer
-	Closer io.Closer
-}
-
-func init() {
-	GlobalTracerHandler = InitTracer()
-}
-
-//jaeger 初始化
-func InitTracer() *TraceHandler {
-	cfg := config.Configuration{
+// 初始化jaeger
+func InitJaeger(service_name string,host_port string) (tracer opentracing.Tracer, closer io.Closer, err error) {
+	// 构造配置信息
+	cfg := &config.Configuration{
+		// 设置服务名称
+		ServiceName: service_name,
+		// 设置采样参数
 		Sampler: &config.SamplerConfig{
-			Type:  "const",
-			Param: JaegerSamplerParam,
+			Type:  "const", // 全采样模式
+			Param: 1,       // 开启全采样模式
 		},
 		Reporter: &config.ReporterConfig{
-			LogSpans:           true,
-			LocalAgentHostPort: JaegerReportingHost,
+			LogSpans           : true,
+			LocalAgentHostPort : host_port,
 		},
 	}
-	//设置服务名称
-	cfg.ServiceName = "jaeger_test"
-	//创建tracer
-	tracer, closer, err := cfg.NewTracer()
-	if err != nil {
-		//失败错误
-		log.Fatal(err)
+	// 生成一条新tracer
+	tracer, closer, err = cfg.NewTracer()
+	if err == nil {
+		// 设置tracer为全局单例对象
+		opentracing.SetGlobalTracer(tracer)
 	}
-	return &TraceHandler{
-		Tracer: tracer,
-		Closer: closer,
-	}
+	return
 }
