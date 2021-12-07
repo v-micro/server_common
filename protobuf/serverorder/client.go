@@ -6,20 +6,17 @@ import (
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
-	"server_gateway/server_common/comutil"
 	"time"
 )
 
 type Client struct {
 	Ctx      context.Context
 	Conn     *grpc.ClientConn
-
 	//应有的服务
 	Ping PingClient
 }
 
 //公共方法
-var grpcUrl = ""
 var grpcClient Client
 
 //初始化
@@ -30,19 +27,8 @@ func init() {
 }
 
 //实例化
-func GetClient(tracer opentracing.Tracer) *Client {
+func GetClient(grpcUrl string,tracer opentracing.Tracer) *Client {
 	var err error
-
-	//从服务发现获取链接地址
-	var endpoints = []string{"192.168.59.131:2379"}
-	ser := comutil.NewServiceDiscovery(endpoints)
-
-	defer ser.Close()
-	err = ser.WatchService("server_order")
-	if err != nil {
-		return nil
-	}
-	grpcUrl = ser.GetServices()[0]
 
 	//grpcUrl 判断
 	if grpcUrl == "" {
